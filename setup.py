@@ -8,11 +8,14 @@
 
 from setuptools import setup, find_packages
 
+with open('./README.md', encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name='pyodbc-sqlite-orm',  # 包名
     version='1.0.0',  # 版本
     description="基于pyodbc和sqlite的orm工具",  # 包简介
-    long_description='基于pyodbc和sqlite的orm工具',  # 读取文件中介绍包的详细内容
+    long_description=long_description,  # 读取文件中介绍包的详细内容
     include_package_data=True,  # 是否允许上传资源文件
     author='fangmj',  # 作者
     author_email='1427347600@qq.com',  # 作者邮件

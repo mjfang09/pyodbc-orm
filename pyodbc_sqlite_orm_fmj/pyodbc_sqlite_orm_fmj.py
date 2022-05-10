@@ -297,7 +297,7 @@ class Model(dict, metaclass=ModelMetaClass):
         c_tab_sql = f"CREATE TABLE IF NOT EXISTS {self.__table__} ({','.join(fields)})"
         return c_tab_sql
 
-    def save_of_sqlite3(self):
+    def save_of_sqlite(self):
         fields = []
         params = []
         args = []
@@ -310,7 +310,7 @@ class Model(dict, metaclass=ModelMetaClass):
         insert_sql = f"insert into {self.__table__}({','.join(fields)}) values ({','.join(params)})"
         return self.__sqlite_db.insert_one(insert_sql, args)
 
-    def query_by_param_of_sqlite3(self, query_params: list = None):
+    def get_one_of_sqlite(self, query_params: list = None):
         '''
 
         :param query_params: ['','','',]
@@ -334,7 +334,7 @@ class Model(dict, metaclass=ModelMetaClass):
         # logger.info(query_sql)
         return self.__sqlite_db.fetchone(query_sql, args)
 
-    def delete_by_param_of_sqlite3(self, params: list = None):
+    def delete_by_param_of_sqlite(self, params: list = None):
         """
 
         :param params: ['','','',...]
@@ -358,7 +358,7 @@ class Model(dict, metaclass=ModelMetaClass):
 
         return self.sqlite3_db.delete(delete_sql, args)
 
-    def update_by_param_of_sqlite3(self, update_params: list, query_params: list):
+    def update_of_sqlite(self, update_params: list, query_params: list):
         """
 
         :param update_params: ['','',...]
@@ -424,11 +424,15 @@ class Sqlite3DB:
 
     def insert_one(self, insert_sql: str, params: list = []):
         # logger.info(f'【INSERT SQL】:{insert_sql},【params】:{params}')
-        count = self.cursor.execute(insert_sql, params).rowcount
+        self.check_sql(insert_sql)
+        if params:
+            count = self.cursor.execute(insert_sql, params).rowcount
+        else:
+            count = self.cursor.execute(insert_sql).rowcount
         self.connection.commit()
         return count
 
-    def insert_many(self, insert_many_sql: str, params: list):
+    def insert_many(self, insert_many_sql: str, params: list = []):
         """
 
         :param insert_many_sql: 一条带?占位符的插入sql
@@ -436,12 +440,17 @@ class Sqlite3DB:
         :return:
         """
         # logger.info(f'【INSERT MANY SQL】:{insert_many_sql},【params】:{params}')
-        count = self.cursor.executemany(insert_many_sql, params).rowcount
+        self.check_sql(insert_many_sql)
+        if params:
+            count = self.cursor.executemany(insert_many_sql, params).rowcount
+        else:
+            count = self.cursor.executemany(insert_many_sql).rowcount
+
         self.connection.commit()
         return count
 
     # update delete
-    def execute(self, params: list = '', sql: str = ''):
+    def execute(self, sql: str = '', params: list = [], ):
         # logger.info(f'【EXECUTE SQL】:{sql},【params】:{params}')
         if not params:
             count = self.cursor.execute(sql).rowcount
@@ -469,8 +478,9 @@ class Sqlite3DB:
     #         logger.exception(e)
     #     return count
 
-    def fetchone(self, select_sql, params: list = ''):
+    def fetchone(self, select_sql, params: list = []):
         # logger.info(f'【FETCH_ONE SQL】:{select_sql},【params】:{params}')
+        self.check_sql(select_sql)
         if not params:
             self.cursor.execute(select_sql)
         else:
@@ -520,13 +530,19 @@ class SqlserverDB(object):
     # 查询所有
     def query_all(self, query_sql: str = '', params: list = None):
         self.check_sql(query_sql)
-        self.__cursor.execute(query_sql, params)
+        if params:
+            self.__cursor.execute(query_sql, params)
+        else:
+            self.__cursor.execute(query_sql)
         return self.__cursor.fetchall()
 
     # 获取前maxcnt条查询结果
     def query_by_max_count(self, max_count, query_sql: str = '', params: list = None, ):
         self.check_sql(query_sql)
-        self.__cursor.execute(query_sql, params)
+        if params:
+            self.__cursor.execute(query_sql, params)
+        else:
+            self.__cursor.execute(query_sql)
         return self.__cursor.fetchmany(max_count)
 
     # 获取分页查询结果
@@ -538,21 +554,31 @@ class SqlserverDB(object):
     def query_one(self, query_sql: str = '', params: list = None):
         # logger.info(f'【FETCH_ONE SQL】:{sql},【params】:{params}')
         self.check_sql(query_sql)
-        self.__cursor.execute(query_sql, params)
+        if params:
+            self.__cursor.execute(query_sql, params)
+        else:
+            self.__cursor.execute(query_sql)
         return self.__cursor.fetchone()
 
     # 执行语句，包括增删改，返回变更数据数量
     def execute(self, sql: str = '', params: list = None):
         # logger.info(f'【EXECUTE SQL】:{sql},【params】:{params}')
         self.check_sql(sql)
-        count = self.__cursor.execute(sql, params).rowcount
+        if params:
+            count = self.__cursor.execute(sql, params).rowcount
+        else:
+            count = self.__cursor.execute(sql).rowcount
+
         self.__connection.commit()
         return count
 
     def insert(self, insert_sql: str = '', params: list = None):
         # logger.info(f'【INSERT SQL】:{insert_sql},【params】:{params}')
         self.check_sql(insert_sql)
-        count = self.__cursor.execute(insert_sql, params).rowcount
+        if params:
+            count = self.__cursor.execute(insert_sql, params).rowcount
+        else:
+            count = self.__cursor.execute(insert_sql).rowcount
         self.__connection.commit()
         return count
 

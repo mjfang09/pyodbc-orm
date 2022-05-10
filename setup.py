@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pyodbc_sqlite_orm_fmj',  # 包名
-    version='1.0.0',  # 版本
+    version='1.0.1',  # 版本
     description="基于pyodbc和sqlite的orm工具",  # 包简介
     long_description="基于pyodbc和sqlite的orm工具",  # 读取文件中介绍包的详细内容
     include_package_data=True,  # 是否允许上传资源文件

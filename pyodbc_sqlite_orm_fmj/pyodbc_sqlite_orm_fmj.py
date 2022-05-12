@@ -137,7 +137,7 @@ class Model(dict, metaclass=ModelMetaClass):
         args = []
         for k, v in self.__mappings__.items():
             arg_value = getattr(self, k, None)
-            if arg_value:
+            if arg_value is not None:
                 fields.append(k)
                 params.append('?')
                 args.append(arg_value)
@@ -159,7 +159,7 @@ class Model(dict, metaclass=ModelMetaClass):
                 query_sql = " where "
                 for k in query_params:
                     value = getattr(self, k, None)
-                    if value:
+                    if value is not None:
                         query_sql += f"{k} = ? and "
                         args.append(value)
                     else:
@@ -188,7 +188,7 @@ class Model(dict, metaclass=ModelMetaClass):
                 query_sql = " where "
                 for k in query_params:
                     value = getattr(self, k, None)
-                    if value:
+                    if value is not None:
                         query_sql += f"{k} = ? and "
                         args.append(value)
                     else:
@@ -218,9 +218,12 @@ class Model(dict, metaclass=ModelMetaClass):
             if params and isinstance(params, list):
                 delete_sql += f" where "
                 for k in params:
-                    delete_sql += f"{k} = ? and "
                     value = getattr(self, k, None)
-                    args.append(value)
+                    if value is not None:
+                        delete_sql += f"{k} = ? and "
+                        args.append(value)
+                    else:
+                        delete_sql += f"{k} is null and "
                 delete_sql = re.sub('( and )$', '', delete_sql)
                 delete_sql = re.sub('( where )$', '', delete_sql)
             elif not isinstance(params, list):
@@ -245,7 +248,7 @@ class Model(dict, metaclass=ModelMetaClass):
                 update_sql = f"update {self.__table__} set "
                 for k in update_params:
                     value = getattr(self, k, None)
-                    if value:
+                    if value is not None:
                         update_sql += f"{k} = ? , "
                         args.append(value)
                 if not args:
@@ -255,7 +258,7 @@ class Model(dict, metaclass=ModelMetaClass):
 
                 for q_k in query_params:
                     value = getattr(self, q_k, None)
-                    if value:
+                    if value is not None:
                         update_sql += f"{q_k} = ? and "
                         args.append(value)
                     else:
@@ -303,7 +306,7 @@ class Model(dict, metaclass=ModelMetaClass):
         args = []
         for k, v in self.__mappings__.items():
             arg_value = getattr(self, k, None)
-            if arg_value:
+            if arg_value is not None:
                 fields.append(k)
                 params.append('?')
                 args.append(arg_value)
@@ -322,7 +325,7 @@ class Model(dict, metaclass=ModelMetaClass):
             query_sql += " where "
             for k in query_params:
                 value = getattr(self, k, None)
-                if value:
+                if value is not None:
                     query_sql += f"{k} = ? and "
                     args.append(value)
                 else:
@@ -346,7 +349,7 @@ class Model(dict, metaclass=ModelMetaClass):
             delete_sql += " where "
             for k in params:
                 value = getattr(self, k, None)
-                if value:
+                if value is not None:
                     delete_sql += f"{k} = ? and "
                     args.append(value)
                 else:
@@ -370,7 +373,7 @@ class Model(dict, metaclass=ModelMetaClass):
             args = []
             for k in update_params:
                 u_value = getattr(self, k, None)
-                if u_value:
+                if u_value is not None:
                     update_sql += f"{k} = ? , "
                     args.append(u_value)
             if not args:
@@ -380,7 +383,7 @@ class Model(dict, metaclass=ModelMetaClass):
 
             for q_k in query_params:
                 q_value = getattr(self, q_k, None)
-                if q_value:
+                if q_value is not None:
                     update_sql += f"{q_k} = ? and "
                     args.append(q_value)
                 else:
